@@ -1,0 +1,25 @@
+NETWORK SECURITY ANALYSIS REPORT
+==================================================
+
+Report Generated: 2026-09-16 18:43:43
+
+TRAFFIC SUMMARY
+------------------------------
+Total Connections: 12
+Successful Connections: 4
+Failed Connections: 8
+
+SOURCE IP SUMMARY
+------------------------------
+192.168.1.10 | Connections: 1 | Failed: 0 | Unique Ports: 1 | Risk: LOW
+192.168.1.15 | Connections: 1 | Failed: 0 | Unique Ports: 1 | Risk: LOW
+192.168.1.20 | Connections: 3 | Failed: 3 | Unique Ports: 1 | Risk: MEDIUM
+192.168.1.25 | Connections: 1 | Failed: 0 | Unique Ports: 1 | Risk: LOW
+192.168.1.30 | Connections: 1 | Failed: 0 | Unique Ports: 1 | Risk: LOW
+192.168.1.50 | Connections: 5 | Failed: 5 | Unique Ports: 5 | Risk: HIGH
+
+SECURITY ALERTS
+------------------------------
+[MEDIUM] Multiple Failed Connections | 192.168.1.20 | 3 failed attempts
+[MEDIUM] Multiple Failed Connections | 192.168.1.50 | 5 failed attempts
+[HIGH] Possible Port Scan | 192.168.1.50 | 5 unique ports: 21, 22, 23, 25, 53

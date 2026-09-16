@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Network Security Dashboard</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+            color: #222;
+        }
+
+        header {
+            background: #17202a;
+            color: white;
+            padding: 18px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 24px;
+        }
+
+        .logout {
+            background: #e74c3c;
+            color: white;
+            padding: 9px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .logout:hover {
+            background: #c0392b;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1300px;
+            margin: 30px auto;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h3 {
+            color: #666;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .high-number {
+            color: #c0392b;
+        }
+
+        .medium-number {
+            color: #d68910;
+        }
+
+        .section {
+            background: white;
+            padding: 22px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .section-header h2 {
+            font-size: 20px;
+        }
+
+        .refresh {
+            border: none;
+            background: #3498db;
+            color: white;
+            padding: 9px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .refresh:hover {
+            background: #2980b9;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            font-size: 14px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 13px 10px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background: #f8f9fa;
+            color: #555;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        .badge {
+            padding: 5px 9px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .badge-high {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .badge-medium {
+            background: #fff3cd;
+            color: #664d03;
+        }
+
+        .badge-low {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .chart-container {
+            width: 100%;
+            max-width: 700px;
+            margin: auto;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #777;
+            font-size: 13px;
+        }
+
+        @media (max-width: 800px) {
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                padding: 15px;
+            }
+
+            header h1 {
+                font-size: 19px;
+            }
+
+            .container {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Network Security Analyzer</h1>
+    <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+</header>
+
+<div class="container">
+
+    <!-- Summary Cards -->
+    <div class="cards">
+
+        <div class="card">
+            <h3>Total Security Events</h3>
+            <p>{{ total_events }}</p>
+        </div>
+
+        <div class="card">
+            <h3>High Severity Alerts</h3>
+            <p class="high-number">{{ high_alerts }}</p>
+        </div>
+
+        <div class="card">
+            <h3>Medium Severity Alerts</h3>
+            <p class="medium-number">{{ medium_alerts }}</p>
+        </div>
+
+    </div>
+
+
+    <!-- Alert Chart -->
+    <div class="section">
+
+        <div class="section-header">
+            <h2>Security Alert Overview</h2>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="alertChart"></canvas>
+        </div>
+
+    </div>
+
+
+ <div>
+    <a
+        href="{{ url_for('run_analysis') }}"
+        class="refresh"
+        style="text-decoration: none;"
+    >
+        Run Analysis
+    </a>
+
+    <button class="refresh" onclick="location.reload()">
+        Refresh
+    </button>
+
+    <a
+        href="{{ url_for('export_events') }}"
+        class="refresh"
+        style="text-decoration: none;"
+    >
+        Export CSV
+    </a>
+</div>
+
+    
+       
+
+        <input
+            type="text"
+            id="ipSearch"
+            class="search-box"
+            placeholder="Search source IP..."
+            onkeyup="filterIPTable()"
+        >
+
+        <div class="table-wrapper">
+
+            <table id="ipTable">
+
+                <thead>
+                    <tr>
+                        <th>Source IP</th>
+                        <th>Connections</th>
+                        <th>Failed</th>
+                        <th>Unique Ports</th>
+                        <th>Risk Level</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for ip in ip_summary %}
+
+                    <tr>
+
+                        <td>{{ ip.source_ip }}</td>
+
+                        <td>{{ ip.connections }}</td>
+
+                        <td>{{ ip.failed }}</td>
+
+                        <td>{{ ip.unique_ports }}</td>
+
+                        <td>
+
+                            {% if ip.risk == "HIGH" %}
+
+                                <span class="badge badge-high">
+                                    HIGH
+                                </span>
+
+                            {% elif ip.risk == "MEDIUM" %}
+
+                                <span class="badge badge-medium">
+                                    MEDIUM
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge badge-low">
+                                    LOW
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- Security Events -->
+    <div class="section">
+
+        <div class="section-header">
+            <h2>Detected Security Events</h2>
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Detected At</th>
+                        <th>Severity</th>
+                        <th>Event Type</th>
+                        <th>Source IP</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for event in events %}
+
+                    <tr>
+
+                        <td>{{ event.id }}</td>
+
+                        <td>{{ event.detected_at }}</td>
+
+                        <td>
+
+                            {% if event.severity == "HIGH" %}
+
+                                <span class="badge badge-high">
+                                    HIGH
+                                </span>
+
+                            {% elif event.severity == "MEDIUM" %}
+
+                                <span class="badge badge-medium">
+                                    MEDIUM
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge badge-low">
+                                    LOW
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>{{ event.event_type }}</td>
+
+                        <td>{{ event.source_ip }}</td>
+
+                        <td>{{ event.details }}</td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="6">
+                            No security events detected.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<footer>
+    Network Security Analyzer | Defensive Security Project
+</footer>
+
+
+<script>
+
+    const highAlerts =
+        Number("{{ high_alerts }}");
+
+    const mediumAlerts =
+        Number("{{ medium_alerts }}");
+
+
+    new Chart(
+        document.getElementById("alertChart"),
+        {
+            type: "bar",
+
+            data: {
+                labels: [
+                    "HIGH",
+                    "MEDIUM"
+                ],
+
+                datasets: [
+                    {
+                        label: "Security Alerts",
+
+                        data: [
+                            highAlerts,
+                            mediumAlerts
+                        ]
+                    }
+                ]
+            },
+
+            options: {
+                responsive: true,
+
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        }
+    );
+
+
+    function filterIPTable() {
+
+        const input =
+            document.getElementById("ipSearch");
+
+        const filter =
+            input.value.toLowerCase();
+
+        const table =
+            document.getElementById("ipTable");
+
+        const rows =
+            table.getElementsByTagName("tr");
+
+
+        for (let i = 1; i < rows.length; i++) {
+
+            const ipCell =
+                rows[i].getElementsByTagName("td")[0];
+
+            if (!ipCell) {
+                continue;
+            }
+
+            const ip =
+                ipCell.textContent.toLowerCase();
+
+            if (ip.includes(filter)) {
+                rows[i].style.display = "";
+            } else {
+                rows[i].style.display = "none";
+            }
+        }
+    }
+
+</script>
+
+</body>
+</html>
